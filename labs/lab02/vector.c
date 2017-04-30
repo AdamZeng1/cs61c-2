@@ -82,36 +82,21 @@ void vector_set(vector_t *v, size_t loc, int value) {
 	if(loc < v->size) {
 		v->data[loc] = value;
 	} else {
-        /* create a new data array large enough to store value at index loc */
-        int i, new_size, *new_array;
-        new_size = loc + 1;
-        new_array = malloc(new_size * sizeof(int));
+        /* increase memory allocation to store value at index loc */
+        v->data = realloc(v->data, (loc+1) * sizeof(int));
 
-        /* Check our return value to make sure we got memory */
-        if(new_array == NULL) {
+        /* Check to make sure we got memory */
+        if(v->data == NULL) {
             free(v);
             allocation_failed();
         }
 
-        /* Copy data from existing array to new one */
-        for (i=0; i < v->size; i++) {
-            if (v->data[i])
-                new_array[i] = v->data[i];
-            else
-                new_array[i] = 0;
-        }
-
         /* initialize new array elements, up to one before index loc */
-        for ( ; i < loc; i++ ) {
-            new_array[i] = 0;
+        for ( ; v->size < loc; v->size++ ) {
+            v->data[v->size] = 0;
         }
 
         /* insert value at index loc */
-        new_array[loc] = value;
-        
-        /* set new size/data to vector */
-        v->size = new_size;
-        free(v->data);
-        v->data = new_array;
+        v->data[v->size++] = value;
 	}
 }
