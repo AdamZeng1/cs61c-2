@@ -4,9 +4,13 @@
 #include <string.h>
 
 void lfsr_calculate(uint16_t *reg) {
-
-  /* YOUR CODE HERE */
-
+    uint16_t b16, b14, b13, b11, b1;
+    b16 = *reg & 1;
+    b14 = (*reg >> 2) & 1;
+    b13 = (*reg >> 3) & 1;
+    b11 = (*reg >> 5) & 1;
+    b1 = (((b16 ^ b14) ^ b13) ^ b11) << 15;
+    *reg = (*reg >> 1) | b1;
 }
 
 int main() {
