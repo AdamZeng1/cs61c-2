@@ -29,6 +29,7 @@ int is_sane_path(const char* path) {
   return 1;
 }
 
+/* Create a new directory named dirname */
 static void fs_mkdir(const char* dirname) {
   ASSERT_ERROR_MESSAGE(dirname != NULL, "dirname is not a valid string");
   ASSERT_ERROR_MESSAGE(is_sane_path(dirname), "dirname is not a valid path within .beargit");
@@ -36,6 +37,7 @@ static void fs_mkdir(const char* dirname) {
   ASSERT_ERROR_MESSAGE(ret == 0, "creating directory failed");
 }
 
+/* Delete the file filename */
 static void fs_rm(const char* filename) {
   ASSERT_ERROR_MESSAGE(filename != NULL, "filename is not a valid string");
   ASSERT_ERROR_MESSAGE(is_sane_path(filename), "filename is not a valid path within .beargit");
@@ -43,6 +45,7 @@ static void fs_rm(const char* filename) {
   ASSERT_ERROR_MESSAGE(ret == 0, "deleting/unlinking file failed");
 }
 
+/* Move the file src to dst, potentially overwriting it */
 static void fs_mv(const char* src, const char* dst) {
   ASSERT_ERROR_MESSAGE(src != NULL, "src is not a valid string");
   ASSERT_ERROR_MESSAGE(dst != NULL, "dst is not a valid string");
@@ -52,6 +55,7 @@ static void fs_mv(const char* src, const char* dst) {
   ASSERT_ERROR_MESSAGE(ret == 0, "renaming file failed");
 }
 
+/* Copy the file src to dst, potentially overwriting it */
 static void fs_cp(const char* src, const char* dst) {
   ASSERT_ERROR_MESSAGE(src != NULL, "src is not a valid string");
   ASSERT_ERROR_MESSAGE(dst != NULL, "dst is not a valid string");
@@ -73,6 +77,7 @@ static void fs_cp(const char* src, const char* dst) {
   fclose(fout);
 }
 
+/* Create or overwrite the file filename and write str into it, including the NULL-char */
 static void write_string_to_file(const char* filename, const char* str) {
   FILE* fout = fopen(filename, "w");
   ASSERT_ERROR_MESSAGE(fout != NULL, "couldn't open file");
@@ -80,6 +85,8 @@ static void write_string_to_file(const char* filename, const char* str) {
   fclose(fout);
 }
 
+/* Open the file filename and read its content into the location pointed to by str;
+ * limit the amount to read to at most size bytes, including the NULL-char */
 static void read_string_from_file(const char* filename, char* str, int size) {
   FILE* fin = fopen(filename, "r");
   ASSERT_ERROR_MESSAGE(fin != NULL, "couldn't open file");

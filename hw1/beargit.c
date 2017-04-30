@@ -90,14 +90,38 @@ int beargit_add(const char* filename) {
 
 /* beargit rm <filename>
  * 
- * See "Step 2" in the homework 1 spec.
+ * Remove the file filename from .beargit/.index
+ * @param filename, the file to remove from beargit tracking
+ * @return 0 if successful, or 1 if filename is not being tracked
  *
  */
 
 int beargit_rm(const char* filename) {
-  /* COMPLETE THE REST */
+    FILE* findex = fopen(".beargit/.index", "r");
+    FILE *fnewindex = fopen(".beargit/.newindex", "w");
+    int found = 0;
 
-  return 0;
+    char line[FILENAME_SIZE];
+    while(fgets(line, sizeof(line), findex)) {
+        strtok(line, "\n");
+        if (strcmp(line, filename) == 0) 
+            found++;
+        else 
+            fprintf(fnewindex, "%s\n", line);
+    }
+    if (!found) {
+        fprintf(stderr, "ERROR: File %s not tracked\n", filename);
+        fclose(findex);
+        fclose(fnewindex);
+        fs_rm(".beargit/.newindex");
+        return 1;
+    }
+
+    fclose(findex);
+    fclose(fnewindex);
+
+    fs_mv(".beargit/.newindex", ".beargit/.index");
+    return 0;
 }
 
 /* beargit commit -m <msg>
@@ -134,14 +158,35 @@ int beargit_commit(const char* msg) {
 
 /* beargit status
  *
- * See "Step 1" in the homework 1 spec.
+ * Read the file .beargit/.index and print a line for each tracked file.
+ * Formatted like this (where <file*> is the filename):
  *
+ *   Tracked files:
+ *
+ *     <file1>
+ *     [...]
+ *     <fileN>
+ *
+ *   <N> files total
+ *
+ * @return 0
  */
 
 int beargit_status() {
-  /* COMPLETE THE REST */
+    int count = 0;
+    FILE* findex = fopen(".beargit/.index", "r");
+    char line[FILENAME_SIZE];
 
-  return 0;
+    printf("Tracked files:\n\n");
+    while(fgets(line, sizeof(line), findex)) {
+        strtok(line, "\n");
+        printf("\t%s\n", line);
+        count++;
+    }
+    fclose(findex);
+    printf("\n%d files total\n", count);
+
+    return 0;
 }
 
 /* beargit log
@@ -151,7 +196,6 @@ int beargit_status() {
  */
 
 int beargit_log() {
-  /* COMPLETE THE REST */
 
-  return 0;
+    return 0;
 }
