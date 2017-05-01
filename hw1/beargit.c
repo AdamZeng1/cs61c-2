@@ -133,8 +133,24 @@ int beargit_rm(const char* filename) {
 const char* go_bears = "GO BEARS!";
 
 int is_commit_msg_ok(const char* msg) {
-  /* COMPLETE THE REST */
-  return 0;
+    int i = 0, j = 0; 
+    while(*msg != '\0') {
+
+        // find 'G'
+        while (msg[i] != go_bears[j] && msg[i] != '\0')
+            i++;
+        
+        // have we reached the end of the msg? 
+        if (msg[i] == '\0')
+            break; 
+
+        // Check for "GO BEARS!"
+        while(msg[i++] == go_bears[j++] && go_bears[j] != '\0')
+            i++;
+        if (go_bears[j] == '\0' && go_bears[j-1] == msg[i])
+            return 1;
+    }
+    return 0;
 }
 
 void next_commit_id(char* commit_id) {
