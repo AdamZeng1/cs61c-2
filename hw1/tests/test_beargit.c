@@ -81,7 +81,7 @@ void test_long_to_base3(void) {
 }
 
 void test_next_commit_id(void) {
-    char commit_id[COMMIT_ID_SIZE] = "0000000000000000000000000000000000000000";
+    char commit_id[COMMIT_ID_BYTES] = "0000000000000000000000000000000000000000";
     // commit 0
     next_commit_id(commit_id);
     TEST_ASSERT_EQUAL_STRING("1111111111111111111111111111111111111111", commit_id);

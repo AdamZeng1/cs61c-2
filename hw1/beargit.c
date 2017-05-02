@@ -214,19 +214,56 @@ void next_commit_id(char* commit_id) {
     }
 }
 
+
 int beargit_commit(const char* msg) {
-  if (!is_commit_msg_ok(msg)) {
-    fprintf(stderr, "ERROR: Message must contain \"%s\"\n", go_bears);
-    return 1;
-  }
+    if (!is_commit_msg_ok(msg)) {
+        fprintf(stderr, "ERROR: Message must contain \"%s\"\n", go_bears);
+        return 1;
+    }
 
-  char commit_id[COMMIT_ID_SIZE];
-  read_string_from_file(".beargit/.prev", commit_id, COMMIT_ID_SIZE);
-  next_commit_id(commit_id);
+    char commit_dir[FILENAME_SIZE] = ".beargit/";
+    char path_to_file[FILENAME_SIZE], commit_id[COMMIT_ID_SIZE];
 
-  /* COMPLETE THE REST */
+    int len;
+    read_string_from_file(".beargit/.prev", commit_id, COMMIT_ID_BYTES);
+    // TODO: why does the fn above overflow the array size? the line below is 
+    // required, otherwise strlen(commit_id) == 46
+    commit_id[40] = '\0';
+    next_commit_id(commit_id);
 
-  return 0;
+
+    // make a new dir, ./beargit/<newid>
+    strcat(commit_dir, commit_id);
+    fs_mkdir(commit_dir);
+
+    // copy .prev to ./beargit/<newid>
+    strcpy(path_to_file, commit_dir);
+    fs_cp(".beargit/.prev", strcat(path_to_file, "/.prev"));
+    
+    // copy .index to ./beargit/<newid>
+    strcpy(path_to_file, commit_dir);
+    fs_cp(".beargit/.index", strcat(path_to_file, "/.index"));
+    
+    // copy tracked files to ./beargit/<newid>
+    FILE *fin = fopen(".beargit/.index", "r");
+    char filename[FILENAME_SIZE];
+    while(fgets(filename, FILENAME_SIZE, fin) && *filename != EOF) {
+        strtok(filename, "\n");
+        strcpy(path_to_file, commit_dir);
+        strcat(path_to_file, "/");
+        fs_cp(filename, strcat(path_to_file, filename));
+    }
+    fclose(fin);
+
+    
+    // Store the commit message (<msg>) into .beargit/<newid>/.msg
+    strcpy(path_to_file, commit_dir);
+    strcat(path_to_file, "/.msg");
+    write_string_to_file(path_to_file, msg);
+    
+    // Write the new ID into .beargit/.prev.
+    write_string_to_file(".beargit/.prev", commit_id);
+    return 0;
 }
 
 /* beargit status
