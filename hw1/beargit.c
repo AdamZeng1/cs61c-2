@@ -7,6 +7,7 @@
 #include "beargit.h"
 #include "util.h"
 
+typedef unsigned long long int ULLONG;
 /* Implementation Notes:
  *
  * - Functions return 0 if successful, 1 if there is an error.
@@ -145,7 +146,7 @@ int is_commit_msg_ok(const char* msg) {
             break; 
 
         // Check for "GO BEARS!"
-        while(msg[i++] == go_bears[j++] && go_bears[j] != '\0')
+        while(msg[i] == go_bears[j++] && go_bears[j] != '\0')
             i++;
         if (go_bears[j] == '\0' && go_bears[j-1] == msg[i])
             return 1;
@@ -153,8 +154,64 @@ int is_commit_msg_ok(const char* msg) {
     return 0;
 }
 
+/* Return the base to the power of exponent.
+ * requires base > 0 && exponent >= 0 */
+ULLONG power(int base, int exponent) {
+    ULLONG result = (ULLONG) 1;
+    ULLONG b = (ULLONG) base;
+    for ( ; exponent > 0; exponent--)
+        result *= b;
+    return result;
+}
+
+ULLONG base3_to_long(char* id) {
+    ULLONG result = 0;
+    int e;
+    char *start = id;
+    // get to end of array
+    while(*id != '\0')
+        id++;
+    for(--id, e = 0; start <= id; e++, id--) {
+        if (*id == 'c') // c == 2
+            result += 2l * power(3, e);
+        if (*id == '6') // 6 == 1
+            result += power(3, e);
+        // 1 == 0, so continue
+    }
+    return result;
+}
+
+void long_to_base3(char* str, ULLONG n, int len) {
+    ULLONG remainder = n, quotient; 
+    char result[len--];
+    result[0] = '\0'; // ensure empty string
+    while (len >= 0) {
+        if ((quotient = remainder / power(3, len))) {
+            if(len) 
+                remainder %= power(3, len);
+            if (quotient == 2)
+                strcat(result, "c");
+            if (quotient == 1)
+                strcat(result, "6");
+        }
+        else {
+            strcat(result, "1");
+        }
+        len--;
+    }
+    strcpy(str, result);
+}
+
 void next_commit_id(char* commit_id) {
-  /* COMPLETE THE REST */
+    // if first commit
+    if (strcmp(commit_id, "0000000000000000000000000000000000000000") == 0) {
+        strcpy(commit_id, "1111111111111111111111111111111111111111");
+    }
+    else {
+        ULLONG id_number = base3_to_long(commit_id);
+        id_number++;
+        long_to_base3(commit_id, id_number, strlen(commit_id));
+    }
 }
 
 int beargit_commit(const char* msg) {
