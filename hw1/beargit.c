@@ -44,7 +44,7 @@ int beargit_init(void) {
   FILE* findex = fopen(".beargit/.index", "w");
   fclose(findex);
   
-  write_string_to_file(".beargit/.prev", "0000000000000000000000000000000000000000");
+  write_string_to_file(".beargit/.prev", INIT_ID);
 
   return 0;
 }
@@ -204,7 +204,7 @@ void long_to_base3(char* str, ULLONG n, int len) {
 
 void next_commit_id(char* commit_id) {
     // if first commit
-    if (strcmp(commit_id, "0000000000000000000000000000000000000000") == 0) {
+    if (strcmp(commit_id, INIT_ID) == 0) {
         strcpy(commit_id, "1111111111111111111111111111111111111111");
     }
     else {
@@ -222,13 +222,10 @@ int beargit_commit(const char* msg) {
     }
 
     char commit_dir[FILENAME_SIZE] = ".beargit/";
-    char path_to_file[FILENAME_SIZE], commit_id[COMMIT_ID_SIZE];
+    char path_to_file[FILENAME_SIZE], commit_id[COMMIT_ID_BYTES];
 
     int len;
-    read_string_from_file(".beargit/.prev", commit_id, COMMIT_ID_BYTES);
-    // TODO: why does the fn above overflow the array size? the line below is 
-    // required, otherwise strlen(commit_id) == 46
-    commit_id[40] = '\0';
+    read_string_from_file(".beargit/.prev", commit_id, COMMIT_ID_SIZE);
     next_commit_id(commit_id);
 
 
@@ -299,13 +296,65 @@ int beargit_status() {
     return 0;
 }
 
+int log_prev_commit(char *commit_id) {
+    // base case
+    if (strcmp(commit_id, INIT_ID) == 0) {
+        printf("\n");
+        return 0;
+    }
+
+    // prep local variables for procedure
+    char next_commit_id[COMMIT_ID_BYTES];
+    char msg[MSG_SIZE];
+    char msg_file[FILENAME_SIZE] = ".beargit/", prev_file[FILENAME_SIZE];
+    strcat(msg_file, commit_id);
+    strcpy(prev_file, msg_file);
+    strcat(msg_file, "/.msg");
+    strcat(prev_file, "/.prev");
+    
+    // get commit message
+    read_string_from_file(msg_file, msg, MSG_SIZE);
+
+    // print this commit
+    printf("\ncommit %s\n\t%s\n", commit_id, msg);
+
+    // print next commit
+    read_string_from_file(prev_file, next_commit_id, COMMIT_ID_SIZE);
+    log_prev_commit(next_commit_id);
+    return 0;
+}
+
 /* beargit log
  *
- * See "Step 4" in the homework 1 spec.
+ * Print out all recent commits, in this format:
+ * [BLANK LINE]
+ * commit <ID1>
+ *     <msg1>
+ * [BLANK LINE]
+ * commit <ID2>
+ *     <msg2>
+ * [...]
+ * commit <IDN>
+ *     <msgN>
+ * [BLANK LINE]
  *
+ * If there are no commits, return 1 and output the following to stderr:
+ * ERROR: There are no commits!
  */
 
 int beargit_log() {
+    // get most recent commit id
+    char commit_id[COMMIT_ID_BYTES];
+    read_string_from_file(".beargit/.prev", commit_id, COMMIT_ID_SIZE);
 
+    // If there's no commits
+    if (strcmp(commit_id, INIT_ID) == 0) {
+        fprintf(stderr, "ERROR: There are no commits!\n");
+        return 1;
+    }
+
+    // print all commits
+    log_prev_commit(commit_id);
     return 0;
 }
+
