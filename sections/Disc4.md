@@ -31,8 +31,8 @@ There are only two instructions necessary for creating and calling functions: ja
 When calling a function in MIPS, who needs to save the following registers to the stack? Answer “caller” for the procedure making a function call, “callee” for the function being called, or “N/A” for neither.
 
 $0 | $v\* | $a\* | $t\* | $s\* | $sp | $ra 
----|---|---|---|---|---|---|---
-n/a | caller | caller | caller | callee | n/a | caller | 
+--- | --- | --- | --- | --- | --- | --- | ---
+n/a | caller | caller | caller | callee | n/a | caller
 
 Now assume a function foo (which may be called from a main fucntion) calls another function bar, which is known to call some other functions. foo takes one argument and will modify and use $t0 and $s0. bar takes two arguments, returns an integer, and uses $t0-$t2 and $s0-$s1. In the boxes below, draw a possible ordering of the stack just before bar calls a function. The top left box is the address of $sp when foo is first called, and the stack goes downwards, continuing at each next column. Add ‘(f)’ if the register is stored by foo and ‘(b)’ if the register is stored by bar. The first one is written in for you.
 
