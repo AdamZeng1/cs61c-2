@@ -66,7 +66,11 @@ main:
 # calculate C($a0,$a1)
 nchoosek:
 	# prologue
-	### YOUR CODE HERE ###
+    addiu $sp, $sp, -16
+    sw $ra 12($sp)
+    sw $s0 8($sp)
+    sw $s1 4($sp)
+    sw $s2 0($sp)
     
 	beq	$a1, $0, return1
 	beq	$a0, $a1, return1
@@ -91,7 +95,12 @@ return1:
 
 return:
 	# epilogue
-	### YOUR CODE HERE ###
+    lw $s2 0($sp)
+    lw $s1 4($sp)
+    lw $s0 8($sp)
+    lw $ra 12($sp)
+    addiu $sp, $sp, 16
+    jr $ra
 
 print_int:
 	li	$v0, 1

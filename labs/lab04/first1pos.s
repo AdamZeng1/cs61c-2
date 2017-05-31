@@ -66,10 +66,63 @@ main:
 	syscall
 
 first1posshift:
-	### YOUR CODE HERE ###
+    # check zero
+    beq $a0, $0, return_zero
+
+	# prologue
+    addiu $sp, $sp, -8
+    sw $s0, 4($sp)
+    sw $s1, 0($sp)
+
+    # body
+    addiu $s0, $zero, 31
+    lui $s1, 0x8000
+shift:
+    bgeu $a0, $s1, return_shift
+    sll $a0, $a0, 1
+    addiu $s0, $s0, -1
+    j shift
+
+    # epilogue
+return_shift:
+    move $v0, $s0
+    lw $s1, 0($sp)
+    lw $s0, 4($sp)
+    addiu $sp, $sp, 8
+    jr $ra
 
 first1posmask:
-	### YOUR CODE HERE ###
+    # check zero
+    beq $a0, $0, return_zero
+
+	# prologue
+    addiu $sp, $sp, -12
+    sw $s0, 8($sp)
+    sw $s1, 4($sp)
+    sw $s2, 0($sp)
+
+    # body
+    addiu $s0, $zero, 31
+    lui $s1, 0x8000
+mask:
+    and $s2, $a0, $s1
+    bne $s2, $zero, return_mask
+    srl $s1, $s1, 1
+    addiu $s0, $s0, -1
+    j mask
+
+    # epilogue
+return_mask:
+    move $v0, $s0
+    lw $s2, 0($sp)
+    lw $s1, 4($sp)
+    lw $s0, 8($sp)
+    addiu $sp, $sp, 8
+    jr $ra
+
+return_zero:
+    addiu $v0, $zero, -1
+    jr $ra
 
 print_int:
 	move	$a0, $v0
